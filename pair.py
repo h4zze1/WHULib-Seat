@@ -13,13 +13,13 @@ import time
 from bs4 import BeautifulSoup
 
 
-player1 = ('2013000000000', '******')
-player2 = ('2014000000000', '******')
+player1 = ('2013302530126', 'zhang1994')
+player2 = ('2014301500027', '180428')
 
 
 date = '2016-12-30'
-startMin = '1260' # Minutes counted from 00:00
-endMin = '1290' # eg. 21:30 = 21.5 * 60 = 1290
+startMin = '1260'
+endMin = '1290'
 
 info1 = {
     'date': date,
@@ -60,12 +60,12 @@ headerme = {
 }    
 
 
+# =================================== Login Part ======================================== #
 def realDoLogin(player):
     
     login_request = requests.session()
 
     login_response_first = login_request.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers = headerme)
-    #print login_response_first.cookies['JSESSIONID'],
 
     DIVISION = 137
     img = Image.open(cStringIO.StringIO(login_request.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers = headerme).content))
@@ -80,16 +80,13 @@ def realDoLogin(player):
     for i in vcode:
         if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
             vcode = vcode.replace(i, '')
-    #print vcode, 
 
     datame = {
             'username': player[0],
             'password': player[1],
             'captcha': vcode
     }
-    #print datame['username'], '\r'
     login_response_second = login_request.post('http://seat.lib.whu.edu.cn/auth/signIn', headers = headerme, data = datame)
-    #print login_response_second.content
     if '00:00' in login_response_second.content:
         print 'Success'
         return login_request
@@ -104,9 +101,11 @@ def doLogin(player):
     count = 0
     while login_request == 0:
         count = count + 1
-        #print '[*] Trying login ', count,
         login_request = realDoLogin(player)
     return login_request
+# =================================== Login Part ======================================== #
+
+
 
 
 def cancelReservation(login_request):
@@ -116,7 +115,7 @@ def cancelReservation(login_request):
     if len(soup.findAll('a', class_ = 'normal showLoading')) > 0:
         cancelUrl = 'http://seat.lib.whu.edu.cn' + soup.findAll('a', class_ = 'normal showLoading')[0]['href']
         print cancelUrl
-        #login_request.get(url = cancelUrl, headers = headerme)
+        login_request.get(url = cancelUrl, headers = headerme) # do cancel
 
 
 
@@ -132,15 +131,9 @@ def pickSeat(login_request_1, login_request_2, waitingList):
         ps_responce_1 = login_request_1.post('http://seat.lib.whu.edu.cn/selfRes', headers = headerme, data = info1)
         ps_responce_2 = login_request_2.post('http://seat.lib.whu.edu.cn/selfRes', headers = headerme, data = info2)
         if u'已有1个有效预约' in ps_responce_1.content:
-            print 'Player1 succeeded.'
             flag1 = 1
-        else:
-            print 'Player1 failed.'
         if u'已有1个有效预约' in ps_responce_2.content:
-            print 'Player2 succeeded.'
             flag2 = 1
-        else:
-            print 'Player2 failed.'
         if flag1  + flag2 == 2:
             print '\n####################################'
             print '[!] Congratulations! Double Kill! [!]'
@@ -150,10 +143,13 @@ def pickSeat(login_request_1, login_request_2, waitingList):
             cancelUrl(login_request_1)
             cancelUrl(login_request_2)
         else:
-            print '[] So sad [] '
+            pass
+#            print '[] So sad [] '
     return 0
 
 
+
+# =================================== List Part ======================================== #
 def seatListGenerator(login_request):
     
     seatList = {}
@@ -175,16 +171,15 @@ def powerListGenerator():
 
 
 def waitingListGenerator(powerList, seatList):
-    waitingList = [[3956, 3957], [4049, 4080], [9131, 4142], [4194, 4195], [4193, 4192], [4190, 4191], [4188, 4189], [4185, 4186], [4183, 4184]]
+    waitingList = []
     for pair in powerList:
         try:
             print seatList[pair[0]], seatList[pair[1]]
             waitingList.append([seatList[pair[0]], seatList[pair[1]]])
         except:
             pass
-    #waitingList = [[3956, 3957], [4049, 4080], [9131, 4142], [4194, 4195], [4193, 4192], [4190, 4191], [4188, 4189], [4185, 4186], [4183, 4184]]
     return waitingList
-    
+# =================================== List Part ======================================== #
 
 def main():
     print '\n####### START #######'
@@ -194,12 +189,8 @@ def main():
     powerList = powerListGenerator()
     waitingList = waitingListGenerator(powerList, seatList)
 
-    count = 1
-    #print '\n[*] --- Round ', count, '---'
     while pickSeat(login_request_1, login_request_2, waitingList) != 1:
-    #    count = count + 1
-    #    print '\n[*] --- Round ', count, '---'
-        pass
+        waitingList = waitingListGenerator(powerList, seatList)
 
 
 if __name__ == '__main__':
