@@ -18,20 +18,22 @@ player2 = ('2014000000000', '******')
 
 
 date = '2016-12-30'
-startMin = '1260'
+startMin = '1110'
 endMin = '1290'
+
+power = 1  # 1 for yes
 
 
 # ============================ Do not modify code below ==========================
 info1 = {
     'date': date,
-    'seat': '3956',
+    'seat': '',
     'start': startMin,
     'end': endMin
 }
 info2 = {
     'date': date,
-    'seat': '3956',
+    'seat': '',
     'start': startMin,
     'end': endMin
 }
@@ -42,7 +44,7 @@ seatRequirement = {
     'hour': 'null',
     'startMin': startMin,
     'endMin': endMin,
-    'power': '1',
+    'power': power,
     'window': ''
 }
 
@@ -82,7 +84,6 @@ def realDoLogin(player):
     for i in vcode:
         if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
             vcode = vcode.replace(i, '')
-
     datame = {
             'username': player[0],
             'password': player[1],
@@ -100,9 +101,7 @@ def doLogin(player):
 
     print '[*] Logining...'
     login_request = 0
-    count = 0
     while login_request == 0:
-        count = count + 1
         login_request = realDoLogin(player)
     return login_request
 # =================================== Login Part ======================================== #
@@ -116,7 +115,7 @@ def cancelReservation(login_request):
     soup = BeautifulSoup(cr_response_text, "html.parser")
     if len(soup.findAll('a', class_ = 'normal showLoading')) > 0:
         cancelUrl = 'http://seat.lib.whu.edu.cn' + soup.findAll('a', class_ = 'normal showLoading')[0]['href']
-        print cancelUrl
+        print 'Canceling', cancelUrl
         login_request.get(url = cancelUrl, headers = headerme) # do cancel
 
 
@@ -125,17 +124,23 @@ def cancelReservation(login_request):
 def pickSeat(login_request_1, login_request_2, waitingList):
 
     for i in range(0, len(waitingList)):
-        print '[=>]target ', i
+        print '[=>] Trying pair ', i
         info1['seat'] = waitingList[i][0]
         info2['seat'] = waitingList[i][1]    
         flag1 = 0
         flag2 = 0
         ps_responce_1 = login_request_1.post('http://seat.lib.whu.edu.cn/selfRes', headers = headerme, data = info1)
         ps_responce_2 = login_request_2.post('http://seat.lib.whu.edu.cn/selfRes', headers = headerme, data = info2)
-        if u'已有1个有效预约' in ps_responce_1.content:
+        if u'系统已经为您预定好了' in ps_responce_1.content:
+            print 'P1 succeeds',
             flag1 = 1
-        if u'已有1个有效预约' in ps_responce_2.content:
+        else:
+            print 'P1 fails',
+        if u'系统已经为您预定好了' in ps_responce_2.content:
+            print 'P2 succeeds'
             flag2 = 1
+        else:
+            print 'P2 fails'
         if flag1  + flag2 == 2:
             print '\n####################################'
             print '[!] Congratulations! Double Kill! [!]'
@@ -145,8 +150,7 @@ def pickSeat(login_request_1, login_request_2, waitingList):
             cancelUrl(login_request_1)
             cancelUrl(login_request_2)
         else:
-            pass
-#            print '[] So sad [] '
+            print 'bad'            
     return 0
 
 
@@ -176,12 +180,14 @@ def waitingListGenerator(powerList, seatList):
     waitingList = []
     for pair in powerList:
         try:
-            print seatList[pair[0]], seatList[pair[1]]
             waitingList.append([seatList[pair[0]], seatList[pair[1]]])
         except:
             pass
     return waitingList
 # =================================== List Part ======================================== #
+
+
+
 
 def main():
     print '\n####### START #######'
@@ -192,6 +198,7 @@ def main():
     waitingList = waitingListGenerator(powerList, seatList)
 
     while pickSeat(login_request_1, login_request_2, waitingList) != 1:
+        print 'No pair-seats, trying again'
         seatList = seatListGenerator(login_request_1)
         waitingList = waitingListGenerator(powerList, seatList)
 
