@@ -13,14 +13,16 @@ import time
 from bs4 import BeautifulSoup
 
 
-player1 = ('2013302530126', 'zhang1994')
-player2 = ('2014301500027', '180428')
+player1 = ('2013000000000', '******')
+player2 = ('2014000000000', '******')
 
 
 date = '2016-12-30'
 startMin = '1260'
 endMin = '1290'
 
+
+# ============================ Do not modify code below ==========================
 info1 = {
     'date': date,
     'seat': '3956',
@@ -190,6 +192,7 @@ def main():
     waitingList = waitingListGenerator(powerList, seatList)
 
     while pickSeat(login_request_1, login_request_2, waitingList) != 1:
+        seatList = seatListGenerator(login_request_1)
         waitingList = waitingListGenerator(powerList, seatList)
 
 
