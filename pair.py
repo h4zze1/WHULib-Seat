@@ -11,13 +11,13 @@ from PIL import Image, ImageEnhance
 import cStringIO
 import time
 from bs4 import BeautifulSoup
-
+import datetime
 
 player1 = ('2013000000000', '******')
 player2 = ('2014000000000', '******')
 
 
-date = '2016-12-30'
+#date = '2016-12-30' # Default for tomorrow
 startMin = '1110'
 endMin = '1290'
 
@@ -25,6 +25,8 @@ power = 1  # 1 for yes
 
 
 # ============================ Do not modify code below ==========================
+date = datetime.date.today() + datetime.timedelta(days = 1)
+
 info1 = {
     'date': date,
     'seat': '',
