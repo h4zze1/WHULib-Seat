@@ -10,11 +10,16 @@ Why not trying this.
 
 It helps you to reserve the table contains 2 seats as soon as possible.
 
+Details have been posted on my personal blog. http://www.hazzel.cn/archives/53.html
+
+or you can visit >> [Online Version](http://seat.lib.hazzel.cn)<< after you ask me for Inviting Code.
+
 ---
 
 ## Ubuntu
 
 ```
+git clone https://github.com/h4zze1/WHULibSeat.git
 sudo apt update
 sudo apt install python-pil
 sudo apt install tesseract-ocr
@@ -49,6 +54,7 @@ Install tesseract-ocr engine
 
 # Install tesseract 
 
+git clone https://github.com/h4zze1/WHULibSeat.git
 sudo pip install pytesseract
 sudo pip install requests
 sudo pip install bs4
@@ -68,7 +74,7 @@ Mac is too expensive for me to afford.
 ```
 
 
-PS: If you have any questions, do not hesitate to contact me. I am willing to solve your problems
+PS: If you have any questions, do not hesitate to contact me. I am willing to solve your problems.
 
 I am still working to perfect this script for your need.
 
