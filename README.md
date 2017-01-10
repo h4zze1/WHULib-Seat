@@ -1,25 +1,40 @@
-# Tool for reservation of seats in Wuhan University Library
+# A tool for reservating seat in Wuhan University.
 
 > author: hazzel
 
 > Yes! the author is me. I did it! :))
 
-Do you miss the opportunities to study with your girlfriend?
+If you miss the opportunity to reserve seats on time again and again, why not try this.
 
-Why not trying this. 
+The project contains TWO BRANCHES. One is for single person, while the other is for couples.
 
-It helps you to reserve the table contains 2 seats as soon as possible.
 
-Details have been posted on my personal blog. http://www.hazzel.cn/archives/53.html
 
-or you can visit >> [Online Version](http://seat.lib.hazzel.cn)<< after you ask me for Inviting Code.
+## Version for single person
 
----
+In the dictonary, you can find such two files - `main-single.py` and `user.txt` - the former of which is the entry, while the other is the config file.
 
-## Ubuntu
+## Version for couples
+
+To be added.
+
+### How to run it
+
+If you want to run the script, you should build suitable environment.
+
+### What you need is:
+* PIL: the Python Image Library for handle pictures
+* tesseract-ocr: The OCR engine
+* pytesseract: the library for Python to call tesseract
+* requests: make request
+* bs4: beautiful-soup to manage content on HTML page
+
+### Ubuntu X64 (tested on Ubuntu 14.04 x64)
 
 ```
+# Prepare
 git clone https://github.com/h4zze1/WHULibSeat.git
+git checkout single
 sudo apt update
 sudo apt install python-pil
 sudo apt install tesseract-ocr
@@ -28,15 +43,15 @@ sudo pip install pytesseract
 sudo pip install requests
 sudo pip install bs4
 
-# Enter the directory
-
-# Edit the source code to fulfill your information
-
-python pair.py
+# Run
+# ! Modify the information in user.txt
+python main-single.py
+# ! Follow the intruction in interface
+# ! Just wait 
 
 ```
 
-## Windows
+### Windows (tested on Win10)
 
 Install PIL(Python Image Lib):
 
@@ -44,27 +59,25 @@ Install PIL(Python Image Lib):
 
 [ Win x32 Click Here ](http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe)
 
-
 Install tesseract-ocr engine
 
 [ tesseract-ocr Click Here ](http://code.google.com/p/tesseract-ocr)
 
 ```
-# Install PIL
-
-# Install tesseract 
-
+# Prepare
+# ! Install PIL
+# ! Install tesseract 
 git clone https://github.com/h4zze1/WHULibSeat.git
+git checkout single
 sudo pip install pytesseract
 sudo pip install requests
 sudo pip install bs4
 
-# Enter the directory
-
-# Edit the source code to fulfill your information
-
-python pair.py
-
+# Run
+# ! Modify the information in user.txt
+python main-single.py
+# ! Follow the intruction in interface
+# ! Just wait 
 ```
 
 ## Mac
@@ -73,6 +86,9 @@ python pair.py
 Mac is too expensive for me to afford.
 ```
 
+Details have been posted on my personal blog. http://www.hazzel.cn/archives/53.html
+
+or you can visit >> [Online Version](http://seat.lib.hazzel.cn) << after you ask me for Inviting Code.
 
 PS: If you have any questions, do not hesitate to contact me. I am willing to solve your problems.
 
