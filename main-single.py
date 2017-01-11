@@ -12,18 +12,6 @@ from bs4 import BeautifulSoup
 import cStringIO
 import requests
 
-
-# Example: python single.py 20133025 888888 5 17 2007-01-01 12.5 21.5
-'''
-username
-password
-room = sys.argv[3]
-seat = sys.argv[4]
-date = sys.argv[5]
-startMin = sys.argv[6]
-endMin = sys.argv[7]
-'''
-
 def load_user_info():
     print '[*] Loading User Information...'
     UserInfo = {}
@@ -48,7 +36,7 @@ def load_user_info():
         'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
         'Accept-Encoding': 'gzip, deflate',
         'Referer': 'http://seat.lib.whu.edu.cn/login?targetUri=%2F',
-        'Connection': 'keep-alive',
+        #'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
         'Content-Type': 'application/x-www-form-urlencoded'
         }
@@ -143,4 +131,7 @@ def main():
         print '\n\n***** Reservation Complete *****\n\n'
 
 if __name__ == '__main__':
-     main() 
+    try:
+        main() 
+    except:
+        print '***** Program End *****'
