@@ -22,10 +22,11 @@ def load_user_info():
         return False
 
     for line in fp:
-        tmp = line.replace('\n', '').split("=")
-        UserInfo[tmp[0].strip()] = tmp[1].strip()
+        if '=' in line and '#' not in line:
+            tmp = line.replace('\n', '').split("=")
+            UserInfo[tmp[0].strip()] = tmp[1].strip()
     print '  - username: {0}\n  - password: {1}\n  - room: {2}\n  - seat: {3}\n  - date: {4}\n  - start Hour: {5}\n  - end Hour: {6}\n'.format(UserInfo['username'], UserInfo['password'], UserInfo['room'], UserInfo['seat'], UserInfo['date'], UserInfo['startHour'], UserInfo['endHour'])
-    confirm = raw_input('Ensure your info are correct. [Y/N]: ')
+    confirm = raw_input('Ensure your info are correct. [Y/n]: ')
     if confirm.lower() == 'n':
         return False
     else:
@@ -87,7 +88,8 @@ def do_login(UserInfo):
                 print '\n[*] Login Success!'        
                 return LoginRequest
         print 'Some Problem occurs. Input manually.'
-    print '[ Sorry. ]'
+    print '[ Sorry. Press <Enter> to exit. ]'
+    raw_input()
     exit()
 
 def seat_list_generator(LoginRequest, UserInfo):
