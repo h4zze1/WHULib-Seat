@@ -1,8 +1,8 @@
-username = 2014301500043
-password = 282718
+username = 2014300000
+password = ******
 date = 2017-01-14
 room = 14
-seat = 3,4, 5, 6  # 填写all指定所有座位；填写1,2,3指定1，2，3号座位
+seat = 3  # 填写all指定所有座位；填写1,2,3指定1，2，3号座位
 startHour = 15
 endHour = 16.5
 
