@@ -183,7 +183,7 @@ def main():
     if Connection == False:
         error_exit()
 
-    if UserInfo['cancel'] = '1': # Cancel and repick
+    if UserInfo['cancel'] == '1': # Cancel and repick
         cancel_reservation(Connection, UserInfo)
 
     SeatList = seat_list_generator(Connection, UserInfo)
