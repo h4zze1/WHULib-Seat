@@ -158,7 +158,15 @@ def seat_pick(LoginRequest, SeatList, UserInfo):
                     exit()
                 except:
                     pass
-        return False                
+        return False
+
+def cancel_reservation(LoginRequest, UserInfo):
+    CRResponseText = LoginRequest.get(url = 'http://seat.lib.whu.edu.cn/history?type=SEAT', headers = UserInfo['header']).text
+    soup = BeautifulSoup.(CRResponseText, "html.parser")
+    if len(sou.findAll('a', 'class_' = 'normal showLoading')) > 0:
+        CRURL = 'http://seat.lib.whu.edu.cn' + soup.findAll('a', class_ = 'normal showLoading')[0]['href']
+        print '[*] Canceling...', CRURL
+        LoginRequest.get(url = CRURL, headers = UserInfo['header'])
 
 def error_exit():
     print '[ Sorry. Press <Enter> to exit. ]'
@@ -174,12 +182,17 @@ def main():
     Connection = do_login(UserInfo)
     if Connection == False:
         error_exit()
+
+    if UserInfo['cancel'] = '1': # Cancel and repick
+        cancel_reservation(Connection, UserInfo)
+
     SeatList = seat_list_generator(Connection, UserInfo)
     if seat_pick(Connection, SeatList, UserInfo):
         print '\n\n***** Reservation Complete *****\n\n'
+        raw_input('Press <Enter> to exit')
 
 if __name__ == '__main__':
-    #try:
+    try:
         main() 
-    #except:
-    #    print '***** Program End *****'
+    except:
+        print '***** Program End *****'
