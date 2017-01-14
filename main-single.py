@@ -162,7 +162,7 @@ def seat_pick(LoginRequest, SeatList, UserInfo):
 
 def cancel_reservation(LoginRequest, UserInfo):
     CRResponseText = LoginRequest.get(url = 'http://seat.lib.whu.edu.cn/history?type=SEAT', headers = UserInfo['header']).text
-    soup = BeautifulSoup.(CRResponseText, "html.parser")
+    soup = BeautifulSoup(CRResponseText, "html.parser")
     if len(sou.findAll('a', 'class_' = 'normal showLoading')) > 0:
         CRURL = 'http://seat.lib.whu.edu.cn' + soup.findAll('a', class_ = 'normal showLoading')[0]['href']
         print '[*] Canceling...', CRURL
