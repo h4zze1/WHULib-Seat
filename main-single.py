@@ -48,38 +48,38 @@ def load_user_info():
         return UserInfo
 
 def read_do_login(UserInfo, manual):
-    #try:
-    LoginRequestTmp = requests.Session()
-    LoginResponseTmp = LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers = UserInfo['header'])
-    img = Image.open(cStringIO.StringIO(LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers = UserInfo['header']).content))
-    (imgLong, imgWidth) = (img.size[0] - 1, img.size[1] - 1) 
-    for i in range(0, imgLong):
-        for j in range(0, imgWidth):
-            if img.getpixel((i, j))[0] > 137:
-                img.putpixel((i, j), (255,255,255))
-    if manual == 0:
-        enhancer = ImageEnhance.Contrast(img) 
-        image_enhancer = enhancer.enhance(4)
-        vcode = image_to_string(image_enhancer).replace(' ', '')
-        for i in vcode:
-            if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-                vcode = vcode.replace(i, '')
-        print '..',
-    elif manual == 1:
-        image_enhancer.show()
-        vcode = raw_input('[!] Input the captcha: ')
-    datame = {
-        'username': UserInfo['username'],
-        'password': UserInfo['password'],
-        'captcha': vcode
-    }
-    LoginResponseTmp = LoginRequestTmp.post('http://seat.lib.whu.edu.cn/auth/signIn', headers = UserInfo['header'], data = datame)
-    if '00:00' in LoginResponseTmp.content:
-        return LoginRequestTmp
-    else:
+    try:
+        LoginRequestTmp = requests.Session()
+        LoginResponseTmp = LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers = UserInfo['header'])
+        img = Image.open(cStringIO.StringIO(LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers = UserInfo['header']).content))
+        (imgLong, imgWidth) = (img.size[0] - 1, img.size[1] - 1) 
+        for i in range(0, imgLong):
+            for j in range(0, imgWidth):
+                if img.getpixel((i, j))[0] > 137:
+                    img.putpixel((i, j), (255,255,255))
+        if manual == 0:
+            enhancer = ImageEnhance.Contrast(img) 
+            image_enhancer = enhancer.enhance(4)
+            vcode = image_to_string(image_enhancer).replace(' ', '')
+            for i in vcode:
+                if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+                    vcode = vcode.replace(i, '')
+            print '..',
+        elif manual == 1:
+            image_enhancer.show()
+            vcode = raw_input('[!] Input the captcha: ')
+        datame = {
+            'username': UserInfo['username'],
+            'password': UserInfo['password'],
+            'captcha': vcode
+        }
+        LoginResponseTmp = LoginRequestTmp.post('http://seat.lib.whu.edu.cn/auth/signIn', headers = UserInfo['header'], data = datame)
+        if '00:00' in LoginResponseTmp.content:
+            return LoginRequestTmp
+        else:
+            return False
+    except:
         return False
-    #except:
-    #    return False
 
 def do_login(UserInfo):
     print '\nLoging ..',
@@ -159,8 +159,6 @@ def seat_pick(LoginRequest, SeatList, UserInfo):
                         exit()
                     except:
                         pass
-            #print '[!] Sorry, all seats are reserved.'
-            #return False
 
 def cancel_reservation(LoginRequest, UserInfo):
     CRResponseText = LoginRequest.get(url = 'http://seat.lib.whu.edu.cn/history?type=SEAT', headers = UserInfo['header']).text
@@ -195,7 +193,7 @@ def main():
     raw_input('\nPress <Enter> to exit')
 
 if __name__ == '__main__':
-    #try:
+    try:
         main() 
-    #except:
-    #    print '***** Program End *****'
+    except:
+        print '***** Program End *****'
