@@ -6,7 +6,7 @@ import os
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
-from pytesser import *
+from pytesser.pytesser import *
 from PIL import Image, ImageEnhance 
 from bs4 import BeautifulSoup
 import cStringIO
@@ -48,38 +48,38 @@ def load_user_info():
         return UserInfo
 
 def read_do_login(UserInfo, manual):
-    try:
-        LoginRequestTmp = requests.Session()
-        LoginResponseTmp = LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers = UserInfo['header'])
-        img = Image.open(cStringIO.StringIO(LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers = UserInfo['header']).content))
-        (imgLong, imgWidth) = (img.size[0] - 1, img.size[1] - 1) 
-        for i in range(0, imgLong):
-            for j in range(0, imgWidth):
-                if img.getpixel((i, j))[0] > 137:
-                    img.putpixel((i, j), (255,255,255))
-        if manual == 0:
-            enhancer = ImageEnhance.Contrast(img) 
-            image_enhancer = enhancer.enhance(4)
-            vcode = image_to_string(img).replace(' ', '')
-            for i in vcode:
-                if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
-                    vcode = vcode.replace(i, '')
-            print '..',
-        elif manual == 1:
-            img.show()
-            vcode = raw_input('[!] Input the captcha: ')
-        datame = {
-            'username': UserInfo['username'],
-            'password': UserInfo['password'],
-            'captcha': vcode
-        }
-        LoginResponseTmp = LoginRequestTmp.post('http://seat.lib.whu.edu.cn/auth/signIn', headers = UserInfo['header'], data = datame)
-        if '00:00' in LoginResponseTmp.content:
-            return LoginRequestTmp
-        else:
-            return False
-    except:
+    #try:
+    LoginRequestTmp = requests.Session()
+    LoginResponseTmp = LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers = UserInfo['header'])
+    img = Image.open(cStringIO.StringIO(LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers = UserInfo['header']).content))
+    (imgLong, imgWidth) = (img.size[0] - 1, img.size[1] - 1) 
+    for i in range(0, imgLong):
+        for j in range(0, imgWidth):
+            if img.getpixel((i, j))[0] > 137:
+                img.putpixel((i, j), (255,255,255))
+    if manual == 0:
+        enhancer = ImageEnhance.Contrast(img) 
+        image_enhancer = enhancer.enhance(4)
+        vcode = image_to_string(image_enhancer).replace(' ', '')
+        for i in vcode:
+            if i not in '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+                vcode = vcode.replace(i, '')
+        print '..',
+    elif manual == 1:
+        image_enhancer.show()
+        vcode = raw_input('[!] Input the captcha: ')
+    datame = {
+        'username': UserInfo['username'],
+        'password': UserInfo['password'],
+        'captcha': vcode
+    }
+    LoginResponseTmp = LoginRequestTmp.post('http://seat.lib.whu.edu.cn/auth/signIn', headers = UserInfo['header'], data = datame)
+    if '00:00' in LoginResponseTmp.content:
+        return LoginRequestTmp
+    else:
         return False
+    #except:
+    #    return False
 
 def do_login(UserInfo):
     print '\nLoging ..',
@@ -121,44 +121,46 @@ def seat_pick(LoginRequest, SeatList, UserInfo):
                     'start' : startMin,
                     'end' : endMin
                 }
+                count = count + 1
+                print '  -Try: {0}\t-ID: {1}'.format(count, seat), '\r',
                 try:
                     PSResponse = LoginRequest.post(url = 'http://seat.lib.whu.edu.cn/selfRes', headers = UserInfo['header'], data = info, timeout = 3)
                     if u'系统已经为您预定好了' in PSResponse.content:
                         return True
-                    else:
-                        count = count + 1
-                        print '  -Try: {0}\t-ID: {1}'.format(count, seat), '\r',
                 except KeyboardInterrupt:
-                    raw_input('[!] Press <Enter> to exit')
+                    raw_input('\n[!] Press <Enter> to exit')
                     exit()
                 except:
                     pass
 
     elif isinstance(SeatSet, list):
-        for seat in SeatSet:
-            while True:
-                info = {
-                    'date' : UserInfo['date'],
-                    'seat' : SeatList[seat.zfill(2)],
-                    'start' : startMin,
-                    'end' : endMin
-                }
-                try:
-                    PSResponse = LoginRequest.post(url = 'http://seat.lib.whu.edu.cn/selfRes', headers = UserInfo['header'], data = info, timeout = 3)
-                    if u'系统已经为您预定好了' in PSResponse.content:
-                        return True
-                    elif u'其他时段或座位' in PSResponse.content:
-                        print '[!] Seat ID {0} is OCCUPIED. Trying others...'.format(seat)
-                        break
-                    else:
-                        count = count + 1
-                        print '  -Try: {0}\t-ID: {1}'.format(count, seat), '\r',
-                except KeyboardInterrupt:
-                    raw_input('[!] Press <Enter> to exit')
-                    exit()
-                except:
-                    pass
-        return False
+        while True:
+            for seat in SeatSet:
+                while True:
+                    info = {
+                        'date' : UserInfo['date'],
+                        'seat' : SeatList[seat.zfill(2)],
+                        'start' : startMin,
+                        'end' : endMin
+                    }
+                    count = count + 1
+                    print '\r  -Try: {0}\t-ID: {1}'.format(count, seat),
+                    try:
+                        PSResponse = LoginRequest.post(url = 'http://seat.lib.whu.edu.cn/selfRes', headers = UserInfo['header'], data = info, timeout = 3)
+                        if u'系统已经为您预定好了' in PSResponse.content:
+                            return True
+                        elif u'其他时段或座位' in PSResponse.content:
+                            print 'is OCCUPIED. Trying others...',
+                            break
+                        else:
+                            pass
+                    except KeyboardInterrupt:
+                        raw_input('\n[!] Press <Enter> to exit')
+                        exit()
+                    except:
+                        pass
+            #print '[!] Sorry, all seats are reserved.'
+            #return False
 
 def cancel_reservation(LoginRequest, UserInfo):
     CRResponseText = LoginRequest.get(url = 'http://seat.lib.whu.edu.cn/history?type=SEAT', headers = UserInfo['header']).text
@@ -169,7 +171,7 @@ def cancel_reservation(LoginRequest, UserInfo):
         LoginRequest.get(url = CRURL, headers = UserInfo['header'])
 
 def error_exit():
-    print '[ Sorry. Press <Enter> to exit. ]'
+    print '\n[ Sorry. Press <Enter> to exit. ]'
     raw_input()
     exit()
 
@@ -189,10 +191,11 @@ def main():
     SeatList = seat_list_generator(Connection, UserInfo)
     if seat_pick(Connection, SeatList, UserInfo):
         print '\n\n***** Reservation Complete *****\n\n'
-        raw_input('Press <Enter> to exit')
+    
+    raw_input('\nPress <Enter> to exit')
 
 if __name__ == '__main__':
-    try:
+    #try:
         main() 
-    except:
-        print '***** Program End *****'
+    #except:
+    #    print '***** Program End *****'
