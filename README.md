@@ -6,7 +6,10 @@
 
 If you miss the opportunity to reserve seats on time again and again, why not try this.
 
-The project contains TWO BRANCHES. One is for single person, while the other is for couples.
+<del>The project contains TWO BRANCHES. One is for single person, while the other is for couples.</del>
+(Because of some reasons, I will only provide SINGLE version, which is enough for you to take seats.)
+
+__If you are not farmiliar with scripts or environment building, you can run .exe in ./bin V*/ dict. after edit your information in /bin V*/user.txt__
 
 
 
