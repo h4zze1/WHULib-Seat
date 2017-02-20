@@ -1,8 +1,8 @@
 username = 2013302500000
 password = ******
-date = 2017-01-16
+date = 2017-02-21
 room = 16
-seat = 27  # 填写all指定所有座位；填写1,2,3指定1，2，3号座位
+seat = all  # 填写all指定所有座位；填写1,2,3指定1，2，3号座位
 startHour = 18
 endHour = 21
 cancel = 0 # 默认为0；若为1，则会先取消当前座位，再进行预定。
