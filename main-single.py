@@ -150,7 +150,6 @@ def seat_pick(LoginRequest, SeatList, UserInfo):
                     return True
                 elif u'其他时段或座位' in PSResponse.content:
                     print 'is OCCUPIED. Trying others...',
-                    break
                 else:
                     pass
             except KeyboardInterrupt:
