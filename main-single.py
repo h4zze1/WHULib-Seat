@@ -57,7 +57,7 @@ def load_user_info():
         return UserInfo
 
 
-def read_do_login(UserInfo, manual):
+def real_do_login(UserInfo, manual):
     LoginRequestTmp = requests.Session()
     LoginResponseTmp = LoginRequestTmp.get(url = 'http://seat.lib.whu.edu.cn/login?targetUri=%2F', headers=UserInfo['header'])
     img = Image.open(cStringIO.StringIO(LoginRequestTmp.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=UserInfo['header']).content))
@@ -101,7 +101,7 @@ def do_login(UserInfo):
     LoginRequest = 0
     for manual in (0, 1):
         for _ in range(0, 10):
-            LoginRequest = read_do_login(UserInfo, manual)
+            LoginRequest = real_do_login(UserInfo, manual)
             if LoginRequest != False:
                 print '\n[*] Login Success!'        
                 return LoginRequest
