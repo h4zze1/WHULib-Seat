@@ -23,34 +23,28 @@ To be added.
 
 ### How to run it
 
-If you want to run the script, you should build suitable environment.
+Just run it by `python main.py` after you input your information in `user.txt`
 
-### What you need is:
+### What you need are:
 * PIL: the Python Image Library for handle pictures
-* tesseract-ocr: The OCR engine
-* pytesseract: the library for Python to call tesseract
+* tesseract-ocr: The OCR engine (optional)
+* pytesseract: the library for Python to call tesseract (optional)
 * requests: make request
 * bs4: beautiful-soup to manage content on HTML page
 
-### Ubuntu X64 (tested on Ubuntu 14.04 x64)
+### Ubuntu X64
 
 ```
 # Prepare
 git clone https://github.com/h4zze1/WHULibSeat.git
-git checkout single
 sudo apt update
 sudo apt install python-pil
 sudo apt install tesseract-ocr
-
 sudo pip install pytesseract
-sudo pip install requests
-sudo pip install bs4
 
 # Run
 # ! Modify the information in user.txt
-python main-single.py
-# ! Follow the intruction in interface
-# ! Just wait 
+python main.py
 
 ```
 
@@ -71,14 +65,10 @@ Install tesseract-ocr engine
 # ! Install PIL
 # ! Install tesseract 
 git clone https://github.com/h4zze1/WHULibSeat.git
-git checkout single
-sudo pip install pytesseract
-sudo pip install requests
-sudo pip install bs4
 
 # Run
 # ! Modify the information in user.txt
-python main-single.py
+python main.py
 # ! Follow the intruction in interface
 # ! Just wait 
 ```
@@ -86,7 +76,7 @@ python main-single.py
 ## Mac
 
 ```
-Mac is too expensive for me to afford.
+Just run the script.
 ```
 
 Details have been posted on my personal blog. http://www.hazzel.cn/archives/53.html

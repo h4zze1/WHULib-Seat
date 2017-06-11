@@ -1,11 +1,12 @@
-username = 2013302500000
-password = *****
-date = 2017-02-22
-room = 16
+username = 2013302530000
+password = 000000
+date = 2017-06-11
+room = 4
 seat = all  # 填写all指定所有座位；填写1,2,3指定1，2，3号座位
 startHour = 21.5
 endHour = 22
 cancel = 0 # 默认为0；若为1，则会先取消当前座位，再进行预定。
+AutoLogin = 0 # 0为手动输入验证码。若根据README配置好验证码识别引擎，可改为1进行自动识别
 
 # ======== Room ID List ========
 #  4 | 一楼创客空间
