@@ -8,7 +8,7 @@ Language: Python 2.7
 
 ## Screenshot
 
-![screenshot](/Users/haozhe/项目/WHULib-Seat-single/screenshot.png)
+![screenshot](screenshot.png)
 
 
 
