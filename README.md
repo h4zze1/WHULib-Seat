@@ -1,89 +1,38 @@
-# A tool for reservating seat in Wuhan University.
+# 武汉大学信息学部图书馆座位预约工具
 
-> author: hazzel
+Author: Haozhe Zhang
 
-> Yes! the author is me. I did it! :))
-
-If you miss the opportunity to reserve seats on time again and again, why not try this.
-
-<del>The project contains TWO BRANCHES. One is for single person, while the other is for couples.</del>
-(Because of some reasons, I will only provide SINGLE version, which is enough for you to take seats.)
-
-__If you are not farmiliar with scripts or environment building, you can run .exe in ./bin V*/ dict. after edit your information in /bin V*/user.txt__
+Language: Python 2.7
 
 
 
-## Version for single person
+## Screenshot
 
-In the dictonary, you can find such two files - `main-single.py` and `user.txt` - the former of which is the entry, while the other is the config file.
+![screenshot](/Users/haozhe/项目/WHULib-Seat-single/screenshot.png)
 
-## Version for couples
 
-To be added.
 
-### How to run it
+## Usage:
 
-Just run it by `python main.py` after you input your information in `user.txt`
+### Step1 Run the sript
 
-### What you need are:
-* PIL: the Python Image Library for handle pictures
-* tesseract-ocr: The OCR engine (optional)
-* pytesseract: the library for Python to call tesseract (optional)
-* requests: make request
-* bs4: beautiful-soup to manage content on HTML page
+#### * Mac & Windows
 
-### Ubuntu X64
-
-```
-# Prepare
-git clone https://github.com/h4zze1/WHULibSeat.git
-sudo apt update
-sudo apt install python-pil
-sudo apt install tesseract-ocr
-sudo pip install pytesseract
-
-# Run
-# ! Modify the information in user.txt
+```shell
 python main.py
-
 ```
 
-### Windows (tested on Win10)
+#### * Ubuntu
 
-Install PIL(Python Image Lib):
-
-[ Win x64 Click Here ](https://github.com/lightkeeper/lswindows-lib/blob/master/amd64/python/PIL-1.1.7.win-amd64-py2.7.exe?raw=true)
-
-[ Win x32 Click Here ](http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe)
-
-Install tesseract-ocr engine
-
-[ tesseract-ocr Click Here ](http://code.google.com/p/tesseract-ocr)
-
-```
-# Prepare
-# ! Install PIL
-# ! Install tesseract 
-git clone https://github.com/h4zze1/WHULibSeat.git
-
-# Run
-# ! Modify the information in user.txt
+```shell
+sudo apt-get install python-tk python-pil
 python main.py
-# ! Follow the intruction in interface
-# ! Just wait 
 ```
 
-## Mac
+### Step2 Input the information
 
-```
-Just run the script.
-```
+Then, Input your username and password, click the button to get captcha, and then sign in.
 
-Details have been posted on my personal blog. http://www.hazzel.cn/archives/53.html
+After you sign in, specify the vaious requirements. Note that you are required to input 21.5 if you want to set time as 21:30.
 
-or you can visit >> [Online Version](http://seat.lib.hazzel.cn) << after you ask me for Inviting Code.
-
-PS: If you have any questions, do not hesitate to contact me. I am willing to solve your problems.
-
-I am still working to perfect this script for your need.
-
+BTW, if you want to select several seats at the same time, just input all those seat_id splited by comma.(ex. "1,2,3,4" for seat 1~seat4)
