@@ -17,7 +17,10 @@ for _m in M:
             os.system('pip install Pillow')
         print '-' * 30, '\n'
 from Tkinter import *
-from PIL import Image, ImageEnhance
+try:
+    from PIL import Image, ImageEnhance
+except:
+    from pillow import Image, ImageEnhance
 import requests
 import bs4
 
@@ -120,9 +123,16 @@ class App(object):
 
     def get_code(self):
         try:
+            '''
+            captha_file = open('captcha.png', 'wb')
+            captha_file.write(self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=self.headers).content)
+            captha_file.close()
+            image = Image.open('captcha.png')
+            '''
             image = Image.open(
                 cStringIO.StringIO(
-                    self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha').content))
+                    self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=self.headers).content))
+            
             (imgLong, imgWidth) = (image.size[0] - 1, image.size[1] - 1)
             for i in range(0, imgLong):
                 for j in range(0, imgWidth):
