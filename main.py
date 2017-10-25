@@ -56,7 +56,9 @@ class App(object):
 
         l_captcha = Label(self.root, text=u'验证码：')
         l_captcha.grid(row=2, column=1, sticky=W)
-        self.e_captcha = Entry(self.root, width=10)
+        self.suspected_captcha_stringvar = StringVar()
+        self.suspected_captcha_stringvar.set('')
+        self.e_captcha = Entry(self.root, width=10, textvariable=self.suspected_captcha_stringvar)
         self.e_captcha.grid(row=2, column=2, sticky=W)
 
         b_getcode = Button(self.root, text=u'获取验证码', command=self.get_code)
@@ -132,8 +134,14 @@ class App(object):
             image = Image.open(
                 cStringIO.StringIO(
                     self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=self.headers).content))
-            
-            (imgLong, imgWidth) = (image.size[0] - 1, image.size[1] - 1)
+
+            try:
+                get_code_text = requests.post(url='http://www.zhzzhz.com/Seat/returnCaptcha.php', data={'cookie':self.requests_obj.cookies['JSESSIONID']})
+                suspected_captcha = get_code_text.text.split('\n')[0]
+                self.suspected_captcha_stringvar.set(suspected_captcha)
+            except:
+                pass
+            (imgLong, imgWidth) = (image.size[0], image.size[1])
             for i in range(0, imgLong):
                 for j in range(0, imgWidth):
                     if image.getpixel((i, j))[0] > 137:

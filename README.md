@@ -4,6 +4,7 @@ Author: Haozhe Zhang
 
 Language: Python 2.7
 
+> Online OCR engine based on tesseract-ocr is newly added to help recognize the captcha. 
 
 
 ## Screenshot
