@@ -1,28 +1,22 @@
 # coding=utf-8
 import os
-import re
 import imp
-import cStringIO
 import threading
 import datetime
 
-M = ['requests', 'bs4', 'PIL']
-for _m in M:
+'''
+Initial work to install required modules
+'''
+REQUIRED_MODULES = ['requests']
+for single_module in REQUIRED_MODULES:
     try:
-        imp.find_module(_m)
+        imp.find_module(single_module)
     except:
-        if _m != 'PIL':
-            os.system('pip install ' + _m)
-        else:
-            os.system('pip install Pillow')
+        os.system('pip install ' + single_module)
         print '-' * 30, '\n'
 from Tkinter import *
-try:
-    from PIL import Image, ImageEnhance
-except:
-    from pillow import Image, ImageEnhance
 import requests
-import bs4
+import json
 
 
 class App(object):
@@ -39,7 +33,9 @@ class App(object):
             'Upgrade-Insecure-Requests': '1',
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-        self.requests_obj = requests.Session()
+
+        self.user_token = ''
+        # self.requests_obj = requests.Session()
         self.flag_done = False
         self.current_task_number = 0
 
@@ -59,6 +55,7 @@ class App(object):
         self.suspected_captcha_stringvar = StringVar()
         self.suspected_captcha_stringvar.set('')
         self.e_captcha = Entry(self.root, width=10, textvariable=self.suspected_captcha_stringvar)
+        self.suspected_captcha_stringvar.set(u'无需输入')
         self.e_captcha.grid(row=2, column=2, sticky=W)
 
         b_getcode = Button(self.root, text=u'获取验证码', command=self.get_code)
@@ -124,169 +121,170 @@ class App(object):
         self.root.mainloop()
 
     def get_code(self):
-        try:
-            '''
-            captha_file = open('captcha.png', 'wb')
-            captha_file.write(self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=self.headers).content)
-            captha_file.close()
-            image = Image.open('captcha.png')
-            '''
-            image = Image.open(
-                cStringIO.StringIO(
-                    self.requests_obj.get(url='http://seat.lib.whu.edu.cn/simpleCaptcha/captcha', headers=self.headers).content))
-
-            try:
-                get_code_text = requests.post(url='http://www.zhzzhz.com/Seat/returnCaptcha.php', data={'cookie':self.requests_obj.cookies['JSESSIONID']})
-                suspected_captcha = get_code_text.text.split('\n')[0]
-                self.suspected_captcha_stringvar.set(suspected_captcha)
-            except:
-                pass
-            (imgLong, imgWidth) = (image.size[0], image.size[1])
-            for i in range(0, imgLong):
-                for j in range(0, imgWidth):
-                    if image.getpixel((i, j))[0] > 137:
-                        image.putpixel((i, j), (255, 255, 255))
-            enhancer = ImageEnhance.Contrast(image)
-            image_enhancer = enhancer.enhance(4)
-            image_enhancer.show()
-        except Exception, e_get_code:
-            self.text.insert(END, u'[!] 无法获得验证码，请稍后重试 %s\n' % str(e_get_code))
+        self.suspected_captcha_stringvar.set(u'听话，别输了')
+        return False
 
     def do_login(self):
-        self.load_user_info()
-        if self.real_do_login():
-            print 'good'
-            self.text.insert(END, u'\t======== Room ID List ========\n')
-            self.text.insert(END, u'\t4\t一楼创客空间\n')
-            self.text.insert(END, u'\t5\t一楼创新学习区\n')
-            self.text.insert(END, u'\t13\t3C创客-电子资源阅览区\n')
-            self.text.insert(END, u'\t14\t3C创客-双屏电脑\n')
-            self.text.insert(END, u'\t15\t创新学习-MAC电脑\n')
-            self.text.insert(END, u'\t16\t创新学习-云桌面\n')
-            self.text.insert(END, u'\t6\t二楼自然科学图书借阅区西\n')
-            self.text.insert(END, u'\t7\t二楼自然科学图书借阅区东\n')
-            self.text.insert(END, u'\t8\t三楼社会科学图书借阅区西\n')
-            self.text.insert(END, u'\t10\t三楼社会科学图书借阅区东\n')
-            self.text.insert(END, u'\t12\t三楼自主学习区\n')
-            self.text.insert(END, u'\t9\t四楼图书阅览区西\n')
-            self.text.insert(END, u'\t11\t四楼图书阅览区东\n')
+        # Combination of all login work.
+        def load_user_info(self):
+            self.username = self.e_username.get()
+            self.password = self.e_password.get()
 
-        else:
-            print 'bad'
+        def real_do_login(self):
+            try:
+                url_for_login = 'http://seat.lib.whu.edu.cn/rest/auth?username=%s&password=%s' % (self.username, self.password)
+                resp_of_login = requests.get(url=url_for_login, headers=self.headers)
+            except:
+                self.text.insert(1.0, u'[!] 网络原因，登录失败，请重试…\n')
 
-    def load_user_info(self):
-        self.username = self.e_username.get()
-        self.password = self.e_password.get()
-        self.captcha = self.e_captcha.get()
-
-    def real_do_login(self):
-        # 0 for manually login, 1 for automatically login
-        login_mode = '0'
-
-        if login_mode == '0':
-            # Manually
-            vcode = self.captcha
-        elif login_mode == '1':
-            # Auto
-            print 'Not finished'
-            exit()
-        else:
-            print 'Login Mode:', login_mode
-            print '[!] Error Login Mode'
-            exit()
-
-        data = {
-            'username': self.username,
-            'password': self.password,
-            'captcha': vcode
-        }
-        try:
-            login_response_obj = self.requests_obj.post('http://seat.lib.whu.edu.cn/auth/signIn',
-                                                      headers=self.headers, data=data, timeout=5)
-            # print LoginResponseTmp.text
-            if '00:00' in login_response_obj.text:
-                self.text.delete(1.0, END)
-                self.text.insert(END, u'[*] 登录成功\n')
-                return True
-            else:
-                try:
-                    fail_info = re.findall('showmsg\("(.+)", 5000\);', login_response_obj.text)[0]
+            print resp_of_login.text
+            resp_of_login_json = json.loads(resp_of_login.text)
+            if resp_of_login_json['status'] == 'success':
+                self.user_token = resp_of_login_json['data']['token']
+                try: # Try to retrieve user's real name friendly
+                    url_for_realname = 'http://seat.lib.whu.edu.cn/rest/v2/user?token=%s' % self.user_token
+                    resp_of_realname = requests.get(url=url_for_realname, headers=self.headers)
+                    print resp_of_realname.text
+                    resp_of_realname_json = json.loads(resp_of_realname.text)
+                    real_name = resp_of_realname_json['data']['name']
                 except:
-                    fail_info = u'登录失败，请重试'
-                self.text.insert(END, u'[!] %s\n' % fail_info)
-                return False
-        except:
-            return False
+                    real_name = ''
+                return (True, real_name)
+            else:
+                return (False, resp_of_login_json['message'])
 
-    def seat_list_generator(self):
-        self.SEAT_LIST = {}
-        SeatList = {}
-        SLResponse = self.requests_obj.get(
-            url='http://seat.lib.whu.edu.cn/mapBook/getSeatsByRoom?room={0}&date={1}'.format(self.e_room.get(),
-                                                                                             self.e_date.get()))
-        SLResponseText = SLResponse.text.replace('<li>&nbsp;</li>', '')
-        SLResponseText = SLResponseText.split(',', 2)[0][12:-1]
-        SLSoup = bs4.BeautifulSoup(SLResponseText, 'html.parser')
-        for tag in SLSoup.findAll('li'):
-            SeatList[tag.code.get_text()[1:]] = re.findall('^seat_(\d+)$', tag['id'])[0]
-        self.SEAT_LIST = SeatList
-        return True
+        def retrieve_room_info(self):
+
+            url_for_room = 'http://seat.lib.whu.edu.cn/rest/v2/free/filters?token=' + self.user_token
+            resp_of_room = requests.get(url=url_for_room, headers=self.headers)
+            resp_of_room_json = json.loads(resp_of_room.text)
+            
+            if resp_of_room_json['status'] != 'success':
+                print 'Retrieve Room Info Failed. ' + resp_of_room_json['message']
+
+            specified_room_dict = {}
+            for room_item in resp_of_room_json['data']['rooms']:
+                room_id = room_item[0]
+                room_name = room_item[1]
+                building_id = room_item[2]
+                # Classify room_item into different buildings.
+                if building_id not in specified_room_dict:
+                    specified_room_dict[building_id] = [room_item]
+                else:
+                    specified_room_dict[building_id].append(room_item)
+
+            # Print room information classified.
+            for building_item in resp_of_room_json['data']['buildings']:
+                building_id = building_item[0]
+                building_name = building_item[1]
+                self.text.insert(END, u'== %s ==\n' % building_name)
+                for room_item in specified_room_dict[building_id]:
+                    self.text.insert(END, u'- %d\t%s\n' % (room_item[0], room_item[1]))
+
+        # Call in-built functions and print result.
+        load_user_info(self)
+        result_for_login = real_do_login(self)
+        if result_for_login[0]:
+            # Login Suceeded, save token value.
+            self.user_realname = result_for_login[1]
+            self.text.insert(END, u'[*] %s您好，登录成功，请输入座位信息进行抢座\n' % self.user_realname)
+            self.text.insert(END, u'[*] 你好闰土，我是猹\n')
+            try:
+                retrieve_room_info(self)
+            except:
+                self.text.insert(END, u'[!] 获取图书馆数据失败，可能为服务端问题\n')
+        else:
+            # Login failed, print error message. 
+            self.text.insert(END, u'[!] %s\n' % result_for_login[1])
+
 
     def seat_pick(self):
+
+        def retrieve_seat_map(self, room_id):
+            startMin = str(int(float(self.e_startHour.get()) * 60))
+            endMin = str(int(float(self.e_endHour.get()) * 60))
+            date = self.e_date.get()
+            url_for_seat_map_base = 'http://seat.lib.whu.edu.cn/rest/v2/searchSeats/%s/%s/%s?token=%s&roomId=%s' % (date, '0', '0', self.user_token, room_id)
+
+            page_number = 1
+            seat_map = {}
+            while True:
+                url_for_seat_map =  url_for_seat_map_base + '&page=' + str(page_number)
+                print url_for_seat_map
+                resp_of_seat_map = requests.get(url=url_for_seat_map, headers=self.headers)
+                resp_of_seat_map_json = json.loads(resp_of_seat_map.text)
+                if len(resp_of_seat_map_json['data']['seats']) != 0:
+                    for seat_item in resp_of_seat_map_json['data']['seats']:
+                        seat_map[resp_of_seat_map_json['data']['seats'][seat_item]['name']] = str(resp_of_seat_map_json['data']['seats'][seat_item]['id'])
+                    # print 'Seat Map:', seat_map
+                    page_number += 1
+                else:
+                    break
+            return seat_map
+
         self.b_pick.config(state=DISABLED)
         self.b_stop.config(state=ACTIVE)
         self.flag_done = False  # enable the button again
         self.current_task_number = 0
         self.max_task_number = self.e_thread.get()
 
-        self.seat_list_generator()
         startMin = str(int(float(self.e_startHour.get()) * 60))
         endMin = str(int(float(self.e_endHour.get()) * 60))
-        SeatSet = self.e_seat.get().split(',')
+        expected_seat_set = self.e_seat.get().split(',')
+        room_id = self.e_room.get()
 
-        self.requests_obj.keep_alive = False
+
+        try:
+            self.seat_map = retrieve_seat_map(self, room_id)
+        except:
+            self.text.insert(1.0, u'[!] 获取座位信息失败，请重试...\n')
+        print expected_seat_set
+        print self.seat_map
+
 
         # SeatSet stores id of seats which is to be checked
-        if SeatSet[0] == 'all':
-            SeatSet = []
-            for _s in self.SEAT_LIST:
-                SeatSet.append(_s)
+        if expected_seat_set[0] == 'all':
+            expected_seat_set = []
+            for _s in self.seat_map:
+                expected_seat_set.append(_s)
 
         def picker(count):
             if not self.flag_done:
-                # print SeatSet
-                id = count % len(SeatSet)
+                seat_ptr = count % len(expected_seat_set)
                 info = {
                     'date': self.e_date.get(),
-                    'seat': self.SEAT_LIST[SeatSet[id]],
-                    'start': startMin,
-                    'end': endMin
+                    'token': self.user_token,
+                    'seat': self.seat_map[expected_seat_set[seat_ptr].zfill(3)],
+                    'startTime': startMin,
+                    'endTime': endMin
                 }
 
                 def short_do_pick():
                     self.current_task_number = self.current_task_number + 1
-                    output_line = u'-已尝试: {0}次\t-正尝试: {1} '.format(count, SeatSet[id])
+                    output_line = u'-已尝试: {0}次\t-正尝试: {1} '.format(count, expected_seat_set[seat_ptr])
+                    # print output_line, info['seat']
                     print '+1s\n'
                     try:
-                        PSResponse = self.requests_obj.post(url='http://seat.lib.whu.edu.cn/selfRes',
+                        resp_of_pick = requests.post(url='http://seat.lib.whu.edu.cn/rest/v2/freeBook',
                                                             headers=self.headers,
                                                             data=info, timeout=3)
-                        if u'系统已经为您预定好了' in PSResponse.text:
+                        resp_of_pick_json = json.loads(resp_of_pick.text)
+                        if resp_of_pick_json['status'] == 'success':
                             output_line += u'恭喜，抢座成功'
                             self.flag_done = True
                             self.b_pick.config(state=ACTIVE)
                             self.b_stop.config(state=DISABLED)
-                        elif u'其他时段或座位' in PSResponse.text:
-                            output_line += u'已被占用，正在尝试其他座位'
+
                         else:
-                            sp = bs4.BeautifulSoup(PSResponse.text, 'html.parser')
-                            output_line += sp.find_all('div', class_='layoutSeat')[0].get_text(). \
-                                replace('\n', '').replace(u'预约失败! ', '')
+                            output_line += resp_of_pick_json['message']
+
                         self.text.delete(1.0, 2.0)
                         self.text.insert(1.0, output_line + '\n')
                     except Exception, request_error:
-                        self.text.insert(1.0, u'请求失败，即将重试...\n')
+                        self.text.insert(1.0, u'请求失败，正在重试...\n')
+
                     self.text.after(1, picker, count + 1)
+
                     self.current_task_number = self.current_task_number - 1
 
                 if self.current_task_number < self.max_task_number:
@@ -303,6 +301,7 @@ class App(object):
         self.b_stop.config(state=DISABLED)
 
     def cancel_reservation(self):
+        '''
         cancel_response_text = self.requests_obj.get(url='http://seat.lib.whu.edu.cn/history?type=SEAT',
                                                      headers=self.headers).text
         soup = bs4.BeautifulSoup(cancel_response_text, 'html.parser')
@@ -321,6 +320,9 @@ class App(object):
                 self.text.insert(1.0, u'[*] 已取消预约\n')
             else:
                 self.text.insert(1.0, u'[!] 取消失败，请手动尝试\n')
+        '''
+        self.text.insert(1.0, u'[!] 预约功能暂不可用\n')
+        self.text.insert(1.0, u'[!] 别点了，这功能还没做呢\n')
 
 
 if __name__ == '__main__':

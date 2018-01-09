@@ -17,22 +17,15 @@ Language: Python 2.7
 
 ### Step1 Run the sript
 
-#### * Mac & Windows
+#### * Mac & Windows & Ubuntu
 
 ```shell
-python main.py
-```
-
-#### * Ubuntu
-
-```shell
-sudo apt-get install python-tk python-pil
 python main.py
 ```
 
 ### Step2 Input the information
 
-Then, Input your username and password, click the button to get captcha, and then sign in.
+Then, Input your username and password and sign in.
 
 After you sign in, specify the vaious requirements. Note that you are required to input 21.5 if you want to set time as 21:30.
 
