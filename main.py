@@ -1,12 +1,12 @@
 # coding=utf-8
-import os
-import imp
 import threading
 import datetime
 
 '''
 Initial work to install required modules
 '''
+''' Only used when run as Python script
+import imp
 REQUIRED_MODULES = ['requests']
 for single_module in REQUIRED_MODULES:
     try:
@@ -14,15 +14,20 @@ for single_module in REQUIRED_MODULES:
     except:
         os.system('pip install ' + single_module)
         print '-' * 30, '\n'
+'''
 from Tkinter import *
 import requests
 import json
+import sys  
+
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 
 class App(object):
     def __init__(self):
         self.root = Tk()
-        self.root.title(u'武汉大学图书馆座位')
+        self.root.title(u'武汉大学图书馆座位 v2.6')
         self.headers = {
             'Host': 'seat.lib.whu.edu.cn',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0',
@@ -69,12 +74,16 @@ class App(object):
 
         l_startHour = Label(self.root, text=u'开始时间：')
         l_startHour.grid(row=5, column=1, sticky=NW)
-        self.e_startHour = Entry(self.root, width=12)
+        startHour_info = StringVar()
+        startHour_info.set('8')
+        self.e_startHour = Entry(self.root, width=12, textvariable=startHour_info)
         self.e_startHour.grid(row=5, column=2, sticky=NW, columnspan=2)
 
         l_endHour = Label(self.root, text=u'结束时间：')
         l_endHour.grid(row=5, column=3, sticky=NW)
-        self.e_endHour = Entry(self.root, width=12)
+        endHour_info = StringVar()
+        endHour_info.set('22.5')
+        self.e_endHour = Entry(self.root, width=12, textvariable=endHour_info)
         self.e_endHour.grid(row=5, column=4, sticky=NW, columnspan=2)
 
         l_room = Label(self.root, text=u'房间号：')
@@ -84,12 +93,13 @@ class App(object):
 
         l_seat = Label(self.root, text=u'座位号：')
         l_seat.grid(row=6, column=3, sticky=NW)
-        self.e_seat = Entry(self.root, width=12)
+        seat_default_value = StringVar()
+        seat_default_value.set('all')
+        self.e_seat = Entry(self.root, width=12, textvariable=seat_default_value)
         self.e_seat.grid(row=6, column=4, sticky=NW, columnspan=2)
 
         l_date = Label(self.root, text=u'日期：')
         l_date.grid(row=7, column=1, sticky=NW)
-
         date_default_value = StringVar()
         date_value = datetime.date.today()
         if datetime.datetime.now().time().hour > 21:
@@ -146,6 +156,7 @@ class App(object):
                     resp_of_realname = requests.get(url=url_for_realname, headers=self.headers)
                     print resp_of_realname.text
                     resp_of_realname_json = json.loads(resp_of_realname.text)
+                    print resp_of_realname_json
                     real_name = resp_of_realname_json['data']['name']
                 except:
                     real_name = ''
@@ -198,6 +209,7 @@ class App(object):
             self.text.insert(END, u'[!] %s\n' % result_for_login[1])
 
 
+
     def seat_pick(self):
 
         def retrieve_seat_map(self, room_id):
@@ -222,78 +234,88 @@ class App(object):
                     break
             return seat_map
 
-        self.b_pick.config(state=DISABLED)
-        self.b_stop.config(state=ACTIVE)
-        self.flag_done = False  # enable the button again
-        self.current_task_number = 0
-        self.max_task_number = self.e_thread.get()
+        def check_input_source():
+            input_source = [self.e_startHour.get(), self.e_endHour.get(), self.e_room.get(), self.e_seat.get(), self.e_date.get(), self.e_thread.get()]
+            for source_item in input_source:
+                if len(source_item) == 0:
+                    return False
+            return True
 
-        startMin = str(int(float(self.e_startHour.get()) * 60))
-        endMin = str(int(float(self.e_endHour.get()) * 60))
-        expected_seat_set = self.e_seat.get().split(',')
-        room_id = self.e_room.get()
+        if not check_input_source():
+            self.text.insert(1.0, u'[!] 座位信息未完善，请检查后重新开始\n')
+        else:
+            self.b_pick.config(state=DISABLED)
+            self.b_stop.config(state=ACTIVE)
+            self.flag_done = False  # enable the button again
+            self.current_task_number = 0
+            self.max_task_number = self.e_thread.get()
+
+            startMin = str(int(float(self.e_startHour.get()) * 60))
+            endMin = str(int(float(self.e_endHour.get()) * 60))
+            expected_seat_set = self.e_seat.get().split(',')
+            room_id = self.e_room.get()
 
 
-        try:
-            self.seat_map = retrieve_seat_map(self, room_id)
-        except:
-            self.text.insert(1.0, u'[!] 获取座位信息失败，请重试...\n')
-        print expected_seat_set
-        print self.seat_map
+            try:
+                self.seat_map = retrieve_seat_map(self, room_id)
+            except:
+                self.text.insert(1.0, u'[!] 获取座位信息失败，请重试...\n')
+            print expected_seat_set
+            print self.seat_map
 
 
-        # SeatSet stores id of seats which is to be checked
-        if expected_seat_set[0] == 'all':
-            expected_seat_set = []
-            for _s in self.seat_map:
-                expected_seat_set.append(_s)
+            # SeatSet stores id of seats which is to be checked
+            if expected_seat_set[0] == 'all':
+                expected_seat_set = []
+                for _s in self.seat_map:
+                    expected_seat_set.append(_s)
 
-        def picker(count):
-            if not self.flag_done:
-                seat_ptr = count % len(expected_seat_set)
-                info = {
-                    'date': self.e_date.get(),
-                    'token': self.user_token,
-                    'seat': self.seat_map[expected_seat_set[seat_ptr].zfill(3)],
-                    'startTime': startMin,
-                    'endTime': endMin
-                }
+            def picker(count):
+                if not self.flag_done:
+                    seat_ptr = count % len(expected_seat_set)
+                    info = {
+                        'date': self.e_date.get(),
+                        'token': self.user_token,
+                        'seat': self.seat_map[expected_seat_set[seat_ptr].zfill(3)],
+                        'startTime': startMin,
+                        'endTime': endMin
+                    }
 
-                def short_do_pick():
-                    self.current_task_number = self.current_task_number + 1
-                    output_line = u'-已尝试: {0}次\t-正尝试: {1} '.format(count, expected_seat_set[seat_ptr])
-                    # print output_line, info['seat']
-                    print '+1s\n'
-                    try:
-                        resp_of_pick = requests.post(url='http://seat.lib.whu.edu.cn/rest/v2/freeBook',
-                                                            headers=self.headers,
-                                                            data=info, timeout=3)
-                        resp_of_pick_json = json.loads(resp_of_pick.text)
-                        if resp_of_pick_json['status'] == 'success':
-                            output_line += u'恭喜，抢座成功'
-                            self.flag_done = True
-                            self.b_pick.config(state=ACTIVE)
-                            self.b_stop.config(state=DISABLED)
+                    def short_do_pick():
+                        self.current_task_number = self.current_task_number + 1
+                        output_line = u'-已尝试: {0}次\t-正尝试: {1} '.format(count, expected_seat_set[seat_ptr])
+                        # print output_line, info['seat']
+                        print '+1s\n'
+                        try:
+                            resp_of_pick = requests.post(url='http://seat.lib.whu.edu.cn/rest/v2/freeBook',
+                                                                headers=self.headers,
+                                                                data=info, timeout=3)
+                            resp_of_pick_json = json.loads(resp_of_pick.text)
+                            if resp_of_pick_json['status'] == 'success':
+                                output_line += u'恭喜，抢座成功'
+                                self.flag_done = True
+                                self.b_pick.config(state=ACTIVE)
+                                self.b_stop.config(state=DISABLED)
 
-                        else:
-                            output_line += resp_of_pick_json['message']
+                            else:
+                                output_line += resp_of_pick_json['message']
 
-                        self.text.delete(1.0, 2.0)
-                        self.text.insert(1.0, output_line + '\n')
-                    except Exception, request_error:
-                        self.text.insert(1.0, u'请求失败，正在重试...\n')
+                            self.text.delete(1.0, 2.0)
+                            self.text.insert(1.0, output_line + '\n')
+                        except Exception, request_error:
+                            self.text.insert(1.0, u'请求失败，正在重试...\n')
 
-                    self.text.after(1, picker, count + 1)
+                        self.text.after(1, picker, count + 1)
 
-                    self.current_task_number = self.current_task_number - 1
+                        self.current_task_number = self.current_task_number - 1
 
-                if self.current_task_number < self.max_task_number:
-                    threading.Thread(target=short_do_pick).start()
+                    if self.current_task_number < self.max_task_number:
+                        threading.Thread(target=short_do_pick).start()
 
-            else:
-                self.b_pick.config(state=ACTIVE)
+                else:
+                    self.b_pick.config(state=ACTIVE)
 
-        picker(0)
+            picker(0)
 
     def stop(self):
         self.flag_done = True
@@ -301,6 +323,43 @@ class App(object):
         self.b_stop.config(state=DISABLED)
 
     def cancel_reservation(self):
+
+        def retrieve_current_reservation_status():
+            url_for_check_current_reservation_status = 'http://seat.lib.whu.edu.cn/rest/v2/user/reservations?token=%s' % self.user_token
+            resp_of_current_reservation_status = requests.get(url=url_for_check_current_reservation_status, headers=self.headers)
+            print resp_of_current_reservation_status, '<<<<<'
+            resp_of_current_reservation_status_json = json.loads(resp_of_current_reservation_status.text)
+            return resp_of_current_reservation_status_json
+
+        def retrieve_reservation_id():
+            reservation_info_json = retrieve_current_reservation_status()
+            if reservation_info_json['data'] is not None:
+                self.text.insert(1.0, '[*] 找到可用预约：%s\n' % reservation_info_json['data'][0]['location'])
+                return reservation_info_json['data'][0]['id']
+            else:
+                self.text.insert(1.0, '[*] 当前没有可用预约' + '\n')
+                return False
+
+        def do_cancel_reservation(id):
+            url_for_cancel_reservation = 'http://seat.lib.whu.edu.cn/rest/v2/cancel/%s?token=%s' % (str(id), self.user_token)
+            resp_of_cancel_reservation = requests.get(url_for_cancel_reservation, headers=self.headers)
+            resp_of_cancel_reservation_json = json.loads(resp_of_cancel_reservation.text)
+            if resp_of_cancel_reservation_json['status'] == 'success':
+                return True
+            else:
+                return False
+        self.text.insert(1.0, u'%s\n' % ('-'*40)) # For better looking
+        reservation_id = retrieve_reservation_id()
+        if reservation_id != False:
+            if do_cancel_reservation(reservation_id):
+                reservation_cancel_confirmation = retrieve_current_reservation_status()
+                if reservation_cancel_confirmation['data'] is None:
+                    self.text.insert(1.0, '[*] 取消预约成功' + '\n')
+                else:
+                    self.text.insert(1.0, '[*] 预约失败，原因未知' + '\n')
+
+
+
         '''
         cancel_response_text = self.requests_obj.get(url='http://seat.lib.whu.edu.cn/history?type=SEAT',
                                                      headers=self.headers).text
@@ -321,8 +380,6 @@ class App(object):
             else:
                 self.text.insert(1.0, u'[!] 取消失败，请手动尝试\n')
         '''
-        self.text.insert(1.0, u'[!] 预约功能暂不可用\n')
-        self.text.insert(1.0, u'[!] 别点了，这功能还没做呢\n')
 
 
 if __name__ == '__main__':

@@ -4,8 +4,6 @@ Author: Haozhe Zhang
 
 Language: Python 2.7
 
-> Online OCR engine based on tesseract-ocr is newly added to help recognize the captcha. 
-
 
 ## Screenshot
 
@@ -15,7 +13,15 @@ Language: Python 2.7
 
 ## Usage:
 
-### Step1 Run the sript
+### Release Download Link
+
+Mac: [https://github.com/zhzzhz/WHU-LibSeat/releases/download/v2.6/LibSeat.for.mac.zip](https://github.com/zhzzhz/WHU-LibSeat/releases/download/v2.6/LibSeat.for.mac.zip)
+
+Win: [https://github.com/zhzzhz/WHU-LibSeat/releases/download/v2.6/LibSeat.for.mac.zip](https://github.com/zhzzhz/WHU-LibSeat/releases/download/v2.6/LibSeat.for.mac.zip)
+
+
+
+### Run the sript
 
 #### * Mac & Windows & Ubuntu
 
